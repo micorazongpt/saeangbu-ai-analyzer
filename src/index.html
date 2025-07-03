@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>생기부 분석 전문가 - AI 기반 학생부종합전형 분석 시스템</title>
+    <meta name="description" content="AI 기반 생기부 분석으로 13개 학과 매칭도를 확인하세요. 전문가급 분석과 맞춤형 개선 제안을 제공합니다.">
+    <meta name="keywords" content="생기부분석, 학생부종합전형, AI분석, 입시컨설팅, 학과매칭">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="생기부 분석 전문가">
+    <meta property="og:description" content="AI 기반 학생부종합전형 분석 시스템">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://saeangbu-analyzer.vercel.app">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="alternate icon" href="/favicon.ico">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./styles/main.css">
+    <link rel="stylesheet" href="./styles/components.css">
+    <link rel="stylesheet" href="./styles/responsive.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div class="loading-text">생기부 분석 전문가</div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <h1 class="header-title">
+                        <i class="fas fa-brain"></i> 
+                        생기부 분석 전문가
+                    </h1>
+                    <p class="header-subtitle">
+                        AI 기반 학생부종합전형 분석 시스템 - 13개 학과 데이터베이스 완비
+                    </p>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalDepartments">13</span>
+                            <span class="stat-label">분석 학과</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalAnalyses">0</span>
+                            <span class="stat-label">완료 분석</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="avgAccuracy">95.7</span>
+                            <span class="stat-label">정확도 (%)</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="processingTime">2.3</span>
+                            <span class="stat-label">평균 처리시간(초)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Step Navigation -->
+                <div class="step-nav">
+                    <div class="step-item active" data-step="upload">
+                        <span class="step-number">1</span>
+                        <span class="step-text">파일 업로드</span>
+                    </div>
+                    <div class="step-item" data-step="select">
+                        <span class="step-number">2</span>
+                        <span class="step-text">학과 선택</span>
+                    </div>
+                    <div class="step-item" data-step="analyze">
+                        <span class="step-number">3</span>
+                        <span class="step-text">AI 분석</span>
+                    </div>
+                    <div class="step-item" data-step="results">
+                        <span class="step-number">4</span>
+                        <span class="step-text">결과 확인</span>
+                    </div>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <!-- Upload Section -->
+                    <section class="upload-section card">
+                        <div class="card-header">
+                            <h2>
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                생기부 파일 업로드
+                            </h2>
+                            <p class="card-description">
+                                학생부 파일을 업로드하세요. 여러 파일을 한번에 분석할 수 있습니다.
+                            </p>
+                        </div>
+                        
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-content">
+                                <div class="upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="upload-text">
+                                    클릭하거나 파일을 드래그하세요
+                                </div>
+                                <div class="upload-hint">
+                                    지원 형식: DOCX, TXT, PDF (최대 10MB)
+                                </div>
+                            </div>
+                            <input type="file" id="fileInput" accept=".docx,.txt,.pdf" multiple hidden>
+                        </div>
+
+                        <div class="file-list" id="fileList"></div>
+
+                        <div class="upload-controls">
+                            <button class="btn btn-primary" id="selectFilesBtn">
+                                <i class="fas fa-folder-open"></i>
+                                파일 선택
+                            </button>
+                            <button class="btn btn-secondary" id="clearFilesBtn">
+                                <i class="fas fa-trash"></i>
+                                파일 삭제
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Department Selection -->
+                    <section class="department-section card">
+                        <div class="card-header">
+                            <h2>
+                                <i class="fas fa-graduation-cap"></i>
+                                분석 대상 학과 선택
+                            </h2>
+                            <p class="card-description">
+                                관심 있는 학과를 선택하세요. 전체 선택도 가능합니다.
+                            </p>
+                        </div>
+
+                        <div class="department-filter">
+                            <input type="text" id="departmentSearch" placeholder="학과명 검색..." class="search-input">
+                            <div class="filter-tags">
+                                <button class="filter-tag active" data-category="all">전체</button>
+                                <button class="filter-tag" data-category="engineering">공학</button>
+                                <button class="filter-tag" data-category="social">인문사회</button>
+                                <button class="filter-tag" data-category="education">교육</button>
+                                <button class="filter-tag" data-category="science">자연과학</button>
+                            </div>
+                        </div>
+
+                        <div class="departments-grid" id="departmentsGrid"></div>
+
+                        <div class="department-controls">
+                            <button class="btn btn-secondary" id="selectAllDeptBtn">
+                                <i class="fas fa-check-double"></i>
+                                전체 선택
+                            </button>
+                            <button class="btn btn-secondary" id="clearDeptBtn">
+                                <i class="fas fa-times"></i>
+                                선택 해제
+                            </button>
+                            <button class="btn btn-outline" id="advancedSettingsBtn">
+                                <i class="fas fa-cog"></i>
+                                고급 설정
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Analysis Controls -->
+                <div class="analysis-controls">
+                    <button class="btn btn-primary btn-large" id="startAnalysisBtn" disabled>
+                        <i class="fas fa-play"></i>
+                        <span>AI 분석 시작</span>
+                        <div class="btn-shine"></div>
+                    </button>
+                </div>
+
+                <!-- Results Section -->
+                <section class="results-section" id="resultsSection" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>
+                                <i class="fas fa-chart-line"></i>
+                                분석 결과
+                            </h2>
+                            <div class="result-meta" id="resultMeta"></div>
+                        </div>
+
+                        <!-- Analysis Progress -->
+                        <div class="analysis-progress" id="analysisProgress" style="display: none;">
+                            <div class="progress-header">
+                                <span class="progress-text">AI가 생기부를 분석하고 있습니다...</span>
+                                <span class="progress-percentage">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <div class="progress-steps">
+                                <div class="progress-step">텍스트 분석</div>
+                                <div class="progress-step">패턴 매칭</div>
+                                <div class="progress-step">점수 계산</div>
+                                <div class="progress-step">결과 생성</div>
+                            </div>
+                        </div>
+
+                        <!-- Results Grid -->
+                        <div class="results-grid" id="resultsGrid"></div>
+
+                        <!-- Analysis Summary -->
+                        <div class="analysis-summary" id="analysisSummary"></div>
+
+                        <!-- Action Buttons -->
+                        <div class="result-actions">
+                            <button class="btn btn-primary" id="downloadReportBtn">
+                                <i class="fas fa-download"></i>
+                                PDF 보고서 다운로드
+                            </button>
+                            <button class="btn btn-secondary" id="shareResultBtn">
+                                <i class="fas fa-share-alt"></i>
+                                결과 공유
+                            </button>
+                            <button class="btn btn-outline" id="newAnalysisBtn">
+                                <i class="fas fa-plus"></i>
+                                새 분석
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recommendations -->
+                <section class="recommendations-section" id="recommendationsSection" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>
+                                <i class="fas fa-lightbulb"></i>
+                                맞춤형 개선 제안
+                            </h2>
+                        </div>
+                        <div class="recommendations-content" id="recommendationsContent"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-info">
+                        <h3>생기부 분석 전문가</h3>
+                        <p>AI 기반 학생부종합전형 분석의 새로운 기준</p>
+                    </div>
+                    <div class="footer-links">
+                        <a href="#about">서비스 소개</a>
+                        <a href="#contact">문의하기</a>
+                        <a href="#privacy">개인정보처리방침</a>
+                    </div>
+                    <div class="footer-meta">
+                        <p>&copy; 2024 생기부 분석 전문가. All rights reserved.</p>
+                        <p>버전: 4.0.0-extended</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <!-- Advanced Settings Modal -->
+    <div class="modal" id="advancedModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>고급 분석 설정</h3>
+                <button class="modal-close" id="closeAdvancedModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-grid">
+                    <div class="setting-group">
+                        <h4>분석 가중치 조정</h4>
+                        <div class="weight-controls">
+                            <div class="weight-item">
+                                <label>세특 패턴 (<span id="setugValue">40</span>%)</label>
+                                <input type="range" id="setugWeight" min="0" max="70" value="40" class="weight-slider">
+                            </div>
+                            <div class="weight-item">
+                                <label>효과적 표현 (<span id="expressionValue">25</span>%)</label>
+                                <input type="range" id="expressionWeight" min="0" max="50" value="25" class="weight-slider">
+                            </div>
+                            <div class="weight-item">
+                                <label>핵심 키워드 (<span id="keywordValue">20</span>%)</label>
+                                <input type="range" id="keywordWeight" min="0" max="40" value="20" class="weight-slider">
+                            </div>
+                            <div class="weight-item">
+                                <label>자소서 특징 (<span id="essayValue">10</span>%)</label>
+                                <input type="range" id="essayWeight" min="0" max="30" value="10" class="weight-slider">
+                            </div>
+                            <div class="weight-item">
+                                <label>독서 활동 (<span id="readingValue">5</span>%)</label>
+                                <input type="range" id="readingWeight" min="0" max="20" value="5" class="weight-slider">
+                            </div>
+                        </div>
+                        <div class="weight-total">
+                            총합: <span id="totalWeight">100</span>%
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h4>추가 분석 옵션</h4>
+                        <div class="option-list">
+                            <label class="option-item">
+                                <input type="checkbox" id="trendAnalysis" checked>
+                                <span class="checkmark"></span>
+                                트렌드 분석
+                            </label>
+                            <label class="option-item">
+                                <input type="checkbox" id="personalityAnalysis" checked>
+                                <span class="checkmark"></span>
+                                성격 분석
+                            </label>
+                            <label class="option-item">
+                                <input type="checkbox" id="competitiveAnalysis">
+                                <span class="checkmark"></span>
+                                경쟁력 분석
+                            </label>
+                            <label class="option-item">
+                                <input type="checkbox" id="futureProjection">
+                                <span class="checkmark"></span>
+                                미래 예측
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="resetSettingsBtn">
+                    <i class="fas fa-undo"></i>
+                    기본값 복원
+                </button>
+                <button class="btn btn-primary" id="saveSettingsBtn">
+                    <i class="fas fa-save"></i>
+                    설정 저장
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>
