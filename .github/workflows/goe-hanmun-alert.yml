@@ -1,0 +1,55 @@
+name: 경기도교육청 한문 공고 알림
+
+on:
+  schedule:
+    - cron: '*/10 * * * *' # 10분마다 (GitHub 사정에 따라 몇 분 늦어질 수 있음)
+  workflow_dispatch:
+    inputs:
+      test_message:
+        description: '텔레그램 테스트 메시지만 보내기'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write # 이미 알린 공고 목록(data/goe-hanmun-seen.json)을 저장하기 위해
+
+concurrency:
+  group: goe-hanmun-alert
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 한문 공고 확인 및 알림
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::error::저장소 Settings → Secrets and variables → Actions 에 TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID 를 등록하세요."
+            exit 1
+          fi
+          if [ "${{ inputs.test_message }}" = "true" ]; then
+            node scripts/goe-hanmun-alert.mjs --test-message
+          else
+            node scripts/goe-hanmun-alert.mjs
+          fi
+      - name: 알린 공고 목록 저장
+        if: ${{ !inputs.test_message }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/goe-hanmun-seen.json
+          if git diff --cached --quiet; then
+            echo "변경 없음"
+          else
+            git commit -m "chore: 한문 공고 알림 상태 업데이트 [skip ci]"
+            git pull --rebase
+            git push
+          fi
